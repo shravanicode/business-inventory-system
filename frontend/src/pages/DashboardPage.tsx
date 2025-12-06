@@ -2,9 +2,7 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockProducts } from "../mock/inventory";
 
-/* ===============================
-   Types & mock data for dashboard
-   =============================== */
+/* ========= Types & mock data ========= */
 
 type Sale = {
   id: number;
@@ -71,9 +69,7 @@ const mockSales: Sale[] = [
   },
 ];
 
-/* ===============================
-   Dashboard page
-   =============================== */
+/* ========= Dashboard page ========= */
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -158,57 +154,19 @@ export default function DashboardPage() {
 
   return (
     <div>
-      {/* Header – तुझ्या जुना CSS सोबत */}
+      {/* Header */}
       <div className="page-header">
         <h1 className="page-title">Inventory Management Dashboard</h1>
         <p className="page-subtitle">
-          Overview of products, customers, sales performance and stock health.
+          Overview of products, customers, purchases, sales and stock value.
         </p>
       </div>
 
-      {/* SIMPLE KPI ROW – आधीसारखा look */}
-      <div className="stat-grid">
-        <div className="card kpi-card" onClick={handleProductsClick}>
-          <div className="kpi-label">Total Products</div>
-          <div className="kpi-value">{summary.totalProducts}</div>
-          <div className="kpi-subtitle">Active items in inventory</div>
-        </div>
-
-        <div className="card kpi-card" onClick={handleCustomersClick}>
-          <div className="kpi-label">Customers</div>
-          <div className="kpi-value">{summary.totalCustomers}</div>
-          <div className="kpi-subtitle">Unique customers</div>
-        </div>
-
-        <div className="card kpi-card" onClick={handleSalesClick}>
-          <div className="kpi-label">Sales Amount</div>
-          <div className="kpi-value">
-            ₹{summary.totalSalesAmount.toLocaleString("en-IN")}
-          </div>
-          <div className="kpi-subtitle">Sample sales this month</div>
-        </div>
-
-        <div className="card kpi-card">
-          <div className="kpi-label">Profit / Loss</div>
-          <div className="kpi-value">
-            ₹{summary.profitLoss.toLocaleString("en-IN")}
-          </div>
-          <div className="kpi-subtitle">Sales − Purchase value</div>
-        </div>
-
-        <div className="card kpi-card">
-          <div className="kpi-label">Low Stock Items</div>
-          <div className="kpi-value">{summary.lowStockCount}</div>
-          <div className="kpi-subtitle">
-            Stock ≤ {lowStockThreshold} units
-          </div>
-        </div>
-      </div>
-
-      {/* MAIN GRID – charts + stock + customers + notifications */}
-      <div className="dashboard-main-grid">
-        <div className="dashboard-main-column">
-          {/* Top products */}
+      {/* THREE COLUMN DASHBOARD – फोटोसारखा layout */}
+      <div className="dash-three-col-grid">
+        {/* LEFT COLUMN */}
+        <div className="dash-column">
+          {/* Top selling products */}
           <div className="card chart-card">
             <div className="chart-title">Top 5 selling products</div>
             <div className="chart-body">
@@ -250,8 +208,64 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* SIDE COLUMN */}
-        <div className="dashboard-side-column">
+        {/* MIDDLE COLUMN – फक्त ५ square KPIs */}
+        <div className="dash-column dash-middle-kpis">
+          <div className="card kpi-card" onClick={handleProductsClick}>
+            <div className="kpi-label">Products</div>
+            <div className="kpi-value">{summary.totalProducts}</div>
+            <div className="kpi-subtitle">Total active products</div>
+          </div>
+
+          <div className="card kpi-card" onClick={handleCustomersClick}>
+            <div className="kpi-label">Customers</div>
+            <div className="kpi-value">{summary.totalCustomers}</div>
+            <div className="kpi-subtitle">Unique customers</div>
+          </div>
+
+          <div className="card kpi-card" onClick={handleSalesClick}>
+            <div className="kpi-label">Sales amount</div>
+            <div className="kpi-value">
+              ₹{summary.totalSalesAmount.toLocaleString("en-IN")}
+            </div>
+            <div className="kpi-subtitle">Sample sales this month</div>
+          </div>
+
+          <div className="card kpi-card">
+            <div className="kpi-label">Profit / Loss</div>
+            <div className="kpi-value">
+              ₹{summary.profitLoss.toLocaleString("en-IN")}
+            </div>
+            <div className="kpi-subtitle">Sales − Purchase value</div>
+          </div>
+
+          <div className="card kpi-card">
+            <div className="kpi-label">Low stock items</div>
+            <div className="kpi-value">{summary.lowStockCount}</div>
+            <div className="kpi-subtitle">
+              Stock ≤ {lowStockThreshold} units
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="dash-column">
+          {/* Notifications */}
+          <div className="card notifications-card">
+            <div className="chart-title">Notifications</div>
+            <div className="notifications-body">
+              {summary.lowStockNotifications.length === 0 && (
+                <div className="notification-item">
+                  All products are healthy on stock.
+                </div>
+              )}
+              {summary.lowStockNotifications.map((msg, idx) => (
+                <div className="notification-item" key={idx}>
+                  {msg}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Top customers */}
           <div className="card chart-card">
             <div className="chart-title">Top customers</div>
@@ -275,23 +289,6 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-
-          {/* Notifications */}
-          <div className="card notifications-card">
-            <div className="chart-title">Notifications</div>
-            <div className="notifications-body">
-              {summary.lowStockNotifications.length === 0 && (
-                <div className="notification-item">
-                  All products are healthy on stock.
-                </div>
-              )}
-              {summary.lowStockNotifications.map((msg, idx) => (
-                <div className="notification-item" key={idx}>
-                  {msg}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -303,4 +300,4 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-             }
+       }
