@@ -72,151 +72,6 @@ const mockSales: Sale[] = [
 ];
 
 /* ===============================
-   Reusable StatCard component
-   =============================== */
-
-type Tone = "neutral" | "success" | "danger";
-type TrendDirection = "up" | "down" | "flat";
-
-interface StatCardProps {
-  label: string;
-  value: string | number;
-  subtitle?: string;
-  tone?: Tone;
-  trendDirection?: TrendDirection;
-  trendText?: string;
-  trendSeries?: number[]; // mini graph data (0–100 scale)
-  onClick?: () => void;
-}
-
-const toneBorder: Record<Tone, string> = {
-  neutral: "border-slate-200",
-  success: "border-emerald-200",
-  danger: "border-rose-200",
-};
-
-const pillTone: Record<Tone, string> = {
-  neutral: "bg-slate-50 text-slate-700",
-  success: "bg-emerald-50 text-emerald-700",
-  danger: "bg-rose-50 text-rose-700",
-};
-
-const trendIconAndColor = (
-  direction: TrendDirection | undefined
-): { icon: string; className: string } => {
-  switch (direction) {
-    case "up":
-      return { icon: "↑", className: "text-emerald-600" };
-    case "down":
-      return { icon: "↓", className: "text-rose-600" };
-    case "flat":
-    default:
-      return { icon: "→", className: "text-slate-500" };
-  }
-};
-
-const StatCard: React.FC<StatCardProps> = ({
-  label,
-  value,
-  subtitle,
-  tone = "neutral",
-  trendDirection = "flat",
-  trendText,
-  trendSeries,
-  onClick,
-}) => {
-  const borderClass = toneBorder[tone];
-  const pillClass = pillTone[tone];
-  const { icon, className: trendColor } = trendIconAndColor(trendDirection);
-
-  const Base: any = onClick ? "button" : "div";
-
-  const barColor =
-    tone === "success"
-      ? "bg-emerald-400/80 group-hover:bg-emerald-500"
-      : tone === "danger"
-      ? "bg-rose-400/80 group-hover:bg-rose-500"
-      : "bg-slate-400/80 group-hover:bg-slate-500";
-
-  return (
-    <Base
-      type={onClick ? "button" : undefined}
-      onClick={onClick}
-      className={[
-        "group relative flex flex-col justify-between",
-        "rounded-2xl border bg-white/80 px-4 py-3",
-        "shadow-sm ring-1 ring-black/[0.02]",
-        "transition-all duration-150 ease-out",
-        "hover:-translate-y-0.5 hover:shadow-lg hover:bg-white",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/10",
-        borderClass,
-      ].join(" ")}
-    >
-      {/* Top row: label + trend chip */}
-      <div className="mb-1 flex items-start justify-between gap-2">
-        <div className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">
-          {label}
-        </div>
-
-        {trendText && (
-          <span
-            className={[
-              "inline-flex items-center gap-1 rounded-full border border-black/5",
-              "px-2 py-0.5 text-[11px] font-medium",
-              pillClass,
-            ].join(" ")}
-          >
-            <span className={trendColor}>{icon}</span>
-            <span>{trendText}</span>
-          </span>
-        )}
-      </div>
-
-      {/* Main value + mini graph side-by-side */}
-      <div className="mb-0.5 flex items-end justify-between gap-2">
-        <div className="text-2xl font-semibold tabular-nums text-slate-900">
-          {value}
-        </div>
-
-        {/* Mini bar graph (sparkline style) */}
-        {trendSeries && trendSeries.length > 0 && (
-          <div className="flex h-10 w-16 items-end gap-[2px] opacity-80">
-            {trendSeries.map((v, idx) => (
-              <div
-                key={idx}
-                className={`flex-1 rounded-full ${barColor}`}
-                style={{
-                  height: `${6 + v * 0.6}px`, // 0–100 → approx 6–66px
-                  transition: "height 220ms ease-out",
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Subtitle */}
-      {subtitle && (
-        <div className="mt-0.5 text-xs text-slate-500">{subtitle}</div>
-      )}
-
-      {/* Bottom accent bar */}
-      <div className="pointer-events-none mt-3 h-0.5 w-full overflow-hidden rounded-full bg-slate-100">
-        <div
-          className={[
-            "h-full w-1/2 rounded-full bg-gradient-to-r",
-            tone === "success" && "from-emerald-400/90 to-emerald-500/80",
-            tone === "danger" && "from-rose-400/90 to-rose-500/80",
-            tone === "neutral" && "from-slate-400/70 to-slate-500/70",
-            "transition-all duration-300 group-hover:w-4/5",
-          ].join(" ")}
-        />
-      </div>
-    </Base>
-  );
-};
-
-/* ===============================
    Dashboard page
    =============================== */
 
@@ -298,13 +153,12 @@ export default function DashboardPage() {
   }, []);
 
   const handleProductsClick = () => navigate("/products");
-  const handleLowStockClick = () => navigate("/products?filter=low-stock");
   const handleSalesClick = () => navigate("/sales");
   const handleCustomersClick = () => navigate("/customers");
 
   return (
     <div>
-      {/* Header */}
+      {/* Header – तुझ्या जुना CSS सोबत */}
       <div className="page-header">
         <h1 className="page-title">Inventory Management Dashboard</h1>
         <p className="page-subtitle">
@@ -312,63 +166,43 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* TOP KPI ROW – SaaS-style cards with mini graph */}
-      <div className="mb-6 grid gap-3 md:grid-cols-3 xl:grid-cols-5">
-        <StatCard
-          label="Products"
-          value={summary.totalProducts}
-          subtitle="Active SKUs in catalog"
-          tone="neutral"
-          trendDirection="up"
-          trendText="+3 this week"
-          trendSeries={[30, 45, 55, 60, 72, 80]} // mini graph
-          onClick={handleProductsClick}
-        />
+      {/* SIMPLE KPI ROW – आधीसारखा look */}
+      <div className="stat-grid">
+        <div className="card kpi-card" onClick={handleProductsClick}>
+          <div className="kpi-label">Total Products</div>
+          <div className="kpi-value">{summary.totalProducts}</div>
+          <div className="kpi-subtitle">Active items in inventory</div>
+        </div>
 
-        <StatCard
-          label="Customers"
-          value={summary.totalCustomers}
-          subtitle="Total unique customers"
-          tone="neutral"
-          trendDirection="up"
-          trendText="+12% vs last month"
-          trendSeries={[20, 25, 32, 40, 48, 52]}
-          onClick={handleCustomersClick}
-        />
+        <div className="card kpi-card" onClick={handleCustomersClick}>
+          <div className="kpi-label">Customers</div>
+          <div className="kpi-value">{summary.totalCustomers}</div>
+          <div className="kpi-subtitle">Unique customers</div>
+        </div>
 
-        <StatCard
-          label="Sales amount"
-          value={`₹${summary.totalSalesAmount.toLocaleString("en-IN")}`}
-          subtitle="This month (sample data)"
-          tone="success"
-          trendDirection="up"
-          trendText="+18.4% growth"
-          trendSeries={[10, 40, 55, 70, 85, 100]}
-          onClick={handleSalesClick}
-        />
+        <div className="card kpi-card" onClick={handleSalesClick}>
+          <div className="kpi-label">Sales Amount</div>
+          <div className="kpi-value">
+            ₹{summary.totalSalesAmount.toLocaleString("en-IN")}
+          </div>
+          <div className="kpi-subtitle">Sample sales this month</div>
+        </div>
 
-        <StatCard
-          label="Profit / Loss"
-          value={`₹${summary.profitLoss.toLocaleString("en-IN")}`}
-          subtitle="After inventory cost (sample)"
-          tone={summary.profitLoss >= 0 ? "success" : "danger"}
-          trendDirection={summary.profitLoss >= 0 ? "up" : "down"}
-          trendText={summary.profitLoss >= 0 ? "Healthy margin" : "Review pricing"}
-          trendSeries={[15, 30, 35, 50, 58, 65]}
-        />
+        <div className="card kpi-card">
+          <div className="kpi-label">Profit / Loss</div>
+          <div className="kpi-value">
+            ₹{summary.profitLoss.toLocaleString("en-IN")}
+          </div>
+          <div className="kpi-subtitle">Sales − Purchase value</div>
+        </div>
 
-        <StatCard
-          label="Low stock items"
-          value={summary.lowStockCount}
-          subtitle={`Below ${lowStockThreshold} units`}
-          tone="danger"
-          trendDirection={summary.lowStockCount > 0 ? "up" : "flat"}
-          trendText={
-            summary.lowStockCount > 0 ? "Restock recommended" : "All good"
-          }
-          trendSeries={[60, 45, 40, 35, 30, 25]}
-          onClick={handleLowStockClick}
-        />
+        <div className="card kpi-card">
+          <div className="kpi-label">Low Stock Items</div>
+          <div className="kpi-value">{summary.lowStockCount}</div>
+          <div className="kpi-subtitle">
+            Stock ≤ {lowStockThreshold} units
+          </div>
+        </div>
       </div>
 
       {/* MAIN GRID – charts + stock + customers + notifications */}
@@ -469,4 +303,4 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-}
+             }
