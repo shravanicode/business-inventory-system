@@ -1,6 +1,17 @@
+import { useState } from "react";
 import { mockProducts } from "../mock/inventory";
 
 export default function ProductsPage() {
+  const [search, setSearch] = useState("");
+
+  const filtered = mockProducts.filter((p) => {
+    const q = search.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div>
       <div className="page-header">
@@ -20,6 +31,8 @@ export default function ProductsPage() {
               <input
                 className="search-input"
                 placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <button className="primary-button">
@@ -41,7 +54,7 @@ export default function ProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {mockProducts.map((p) => {
+            {filtered.map((p) => {
               const isLow = p.stockQuantity <= 5;
               return (
                 <tr key={p.id}>
@@ -62,6 +75,14 @@ export default function ProductsPage() {
                 </tr>
               );
             })}
+
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={7} style={{ paddingTop: 12, fontSize: 13 }}>
+                  No products found for “{search}”.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
