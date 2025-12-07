@@ -1,55 +1,24 @@
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProductsPage from "./pages/ProductsPage";
 import SalesPage from "./pages/SalesPage";
+import CustomersPage from "./pages/CustomersPage";
 
-export default function App() {
+function App() {
   return (
-    <BrowserRouter>
-      <div className="app-shell">
-        <header className="app-topbar">
-          <div className="app-logo">
-            <div className="app-logo-icon">⬢</div>
-            <span>Inventory Management</span>
-          </div>
-
-          <nav className="app-nav">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                "app-nav-link" + (isActive ? " app-nav-link-active" : "")
-              }
-            >
-              Dashboard
-            </NavLink>
-            <NavLink
-              to="/products"
-              className={({ isActive }) =>
-                "app-nav-link" + (isActive ? " app-nav-link-active" : "")
-              }
-            >
-              Products
-            </NavLink>
-            <NavLink
-              to="/sales"
-              className={({ isActive }) =>
-                "app-nav-link" + (isActive ? " app-nav-link-active" : "")
-              }
-            >
-              Sales
-            </NavLink>
-          </nav>
-        </header>
-
-        <main className="app-page">
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/sales" element={<SalesPage />} />
-          </Routes>
-        </main>
-      </div>
-    </BrowserRouter>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/sales" element={<SalesPage />} />
+        <Route path="/customers" element={<CustomersPage />} />
+      </Routes>
+    </Router>
   );
 }
+
+export default App;
