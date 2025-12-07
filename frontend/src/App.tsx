@@ -1,3 +1,4 @@
+// src/App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -11,7 +12,10 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* FIRST SCREEN = LOGIN */}
         <Route path="/" element={<LoginPage />} />
+
+        {/* AFTER LOGIN */}
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/sales" element={<SalesPage />} />
