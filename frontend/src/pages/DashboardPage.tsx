@@ -1,303 +1,174 @@
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { mockProducts } from "../mock/inventory";
+import React from "react";
 
-type Sale = {
-  id: number;
-  productId: number;
-  productName: string;
-  customerName: string;
-  units: number;
-  amount: number;
-};
+const DashboardPage: React.FC = () => {
+  const totalRevenue = 185000;
+  const ordersToday = 32;
+  const avgOrderValue = Math.round(totalRevenue / ordersToday);
+  const lowStockItems = 7;
 
-type Customer = {
-  id: number;
-  name: string;
-};
+  const recentSales = [
+    { id: 1, invoice: "#INV-1023", customer: "Aarav Shah", total: 12500, time: "Today · 10:21" },
+    { id: 2, invoice: "#INV-1022", customer: "Greenfield Stores", total: 58900, time: "Today · 09:10" },
+    { id: 3, invoice: "#INV-1021", customer: "Urban Mart", total: 24300, time: "Yesterday" },
+    { id: 4, invoice: "#INV-1020", customer: "Riya Desai", total: 8200, time: "2 days ago" },
+  ];
 
-const mockCustomers: Customer[] = [
-  { id: 1, name: "99Store" },
-  { id: 2, name: "MK Tech" },
-  { id: 3, name: "Rajesh Kumar" },
-  { id: 4, name: "Atul Ltd." },
-  { id: 5, name: "Amit" },
-];
-
-const mockSales: Sale[] = [
-  {
-    id: 1,
-    productId: 1,
-    productName: "Dell Inspiron Laptop",
-    customerName: "99Store",
-    units: 2,
-    amount: 120000,
-  },
-  {
-    id: 2,
-    productId: 2,
-    productName: "Samsung Galaxy A55",
-    customerName: "MK Tech",
-    units: 3,
-    amount: 75000,
-  },
-  {
-    id: 3,
-    productId: 3,
-    productName: "Office Chair",
-    customerName: "Rajesh Kumar",
-    units: 4,
-    amount: 28000,
-  },
-  {
-    id: 4,
-    productId: 4,
-    productName: "HP Printer",
-    customerName: "99Store",
-    units: 1,
-    amount: 18000,
-  },
-  {
-    id: 5,
-    productId: 5,
-    productName: "Logitech Wireless Mouse",
-    customerName: "Amit",
-    units: 5,
-    amount: 15000,
-  },
-];
-
-export default function DashboardPage() {
-  const navigate = useNavigate();
-  const lowStockThreshold = 5;
-
-  const summary = useMemo(() => {
-    const totalProducts = mockProducts.length;
-    const totalCustomers = mockCustomers.length;
-
-    const lowStockCount = mockProducts.filter(
-      (p) => p.stockQuantity <= lowStockThreshold
-    ).length;
-
-    const totalStockValue = mockProducts.reduce(
-      (sum, p) => sum + p.stockQuantity * p.buyingPrice,
-      0
-    );
-
-    const totalSalesAmount = mockSales.reduce(
-      (sum, s) => sum + s.amount,
-      0
-    );
-
-    const purchaseAmount = totalStockValue;
-    const profitLoss = totalSalesAmount - purchaseAmount;
-
-    const productMap = new Map<
-      string,
-      { units: number; amount: number }
-    >();
-    mockSales.forEach((sale) => {
-      const key = sale.productName;
-      const existing = productMap.get(key) || { units: 0, amount: 0 };
-      existing.units += sale.units;
-      existing.amount += sale.amount;
-      productMap.set(key, existing);
-    });
-
-    const topProducts = Array.from(productMap.entries())
-      .map(([name, v]) => ({ name, units: v.units }))
-      .sort((a, b) => b.units - a.units)
-      .slice(0, 5);
-
-    const customerMap = new Map<string, number>();
-    mockSales.forEach((sale) => {
-      const key = sale.customerName;
-      customerMap.set(key, (customerMap.get(key) || 0) + sale.amount);
-    });
-
-    const topCustomers = Array.from(customerMap.entries())
-      .map(([name, amount]) => ({ name, amount }))
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 5);
-
-    const stockBars = mockProducts.map((p) => ({
-      name: p.name,
-      stock: p.stockQuantity,
-    }));
-
-    const lowStockNotifications = mockProducts
-      .filter((p) => p.stockQuantity <= lowStockThreshold)
-      .map(
-        (p) =>
-          `${p.name} needs re-order. Stock: ${p.stockQuantity} units.`
-      );
-
-    return {
-      totalProducts,
-      totalCustomers,
-      lowStockCount,
-      totalStockValue,
-      totalSalesAmount,
-      purchaseAmount,
-      profitLoss,
-      topProducts,
-      topCustomers,
-      stockBars,
-      lowStockNotifications,
-    };
-  }, []);
-
-  const handleProductsClick = () => navigate("/products");
-  const handleLowStockClick = () => navigate("/products?filter=low-stock");
-  const handleSalesClick = () => navigate("/sales");
+  const topProducts = [
+    { id: 1, name: "Premium rice 10kg", category: "Grocery", revenue: 82000, share: "32%" },
+    { id: 2, name: "Sunflower oil 1L", category: "Grocery", revenue: 43000, share: "17%" },
+    { id: 3, name: "Almonds 500g", category: "Dry fruits", revenue: 35500, share: "14%" },
+    { id: 4, name: "Green tea pack", category: "Beverages", revenue: 24200, share: "9%" },
+  ];
 
   return (
-    <div>
-      <div className="page-header">
-        <h1 className="page-title">Inventory Management Dashboard</h1>
-        <p className="page-subtitle">
-          Overview of products, customers, purchases, sales and stock
-          value.
-        </p>
-      </div>
-
-      <div className="dashboard-kpi-row">
-        <button
-          type="button"
-          className="card card-clickable dashboard-kpi-card"
-          onClick={handleProductsClick}
-        >
-          <div className="card-label">Products</div>
-          <div className="card-value">{summary.totalProducts}</div>
-        </button>
-
-        <div className="card dashboard-kpi-card">
-          <div className="card-label">Customers</div>
-          <div className="card-value">{summary.totalCustomers}</div>
+    <div className="page">
+      {/* Header row */}
+      <div className="dashboard-header-row">
+        <div className="page-header">
+          <h1>Overview</h1>
+          <p>Daily snapshot of revenue, orders and inventory health.</p>
         </div>
 
-        <button
-          type="button"
-          className="card card-clickable dashboard-kpi-card"
-          onClick={handleSalesClick}
-        >
-          <div className="card-label">Sales Amount</div>
-          <div className="card-value">
-            ₹{summary.totalSalesAmount.toLocaleString("en-IN")}
+        <div className="dashboard-header-actions">
+          <div className="dashboard-pill-group">
+            <button className="dashboard-pill dashboard-pill-muted">Today</button>
+            <button className="dashboard-pill">This week</button>
+            <button className="dashboard-pill">This month</button>
           </div>
-        </button>
-
-        <div className="card dashboard-kpi-card">
-          <div className="card-label">Profit / Loss</div>
-          <div
-            className="card-value"
-            style={{
-              color: summary.profitLoss >= 0 ? "#16a34a" : "#b91c1c",
-            }}
-          >
-            ₹{summary.profitLoss.toLocaleString("en-IN")}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className="card card-clickable dashboard-kpi-card"
-          onClick={handleLowStockClick}
-        >
-          <div className="card-label">Low Stock Items</div>
-          <div className="card-value">{summary.lowStockCount}</div>
-        </button>
-      </div>
-
-      <div className="dashboard-main-grid">
-        <div className="dashboard-main-column">
-          <div className="card chart-card">
-            <div className="chart-title">Top 5 Selling Products</div>
-            <div className="chart-body">
-              {summary.topProducts.map((item) => (
-                <div className="chart-row" key={item.name}>
-                  <div className="chart-label">{item.name}</div>
-                  <div className="chart-bar">
-                    <div
-                      className="chart-bar-fill"
-                      style={{ width: `${item.units * 10}%` }}
-                    />
-                  </div>
-                  <div className="chart-value">{item.units}</div>
-                </div>
-              ))}
-              {summary.topProducts.length === 0 && (
-                <div className="chart-empty">No sales data yet.</div>
-              )}
-            </div>
-          </div>
-
-          <div className="card chart-card">
-            <div className="chart-title">Stock Available</div>
-            <div className="chart-body">
-              {summary.stockBars.map((item) => (
-                <div className="chart-row" key={item.name}>
-                  <div className="chart-label">{item.name}</div>
-                  <div className="chart-bar">
-                    <div
-                      className="chart-bar-fill chart-bar-fill-stock"
-                      style={{ width: `${item.stock * 5}%` }}
-                    />
-                  </div>
-                  <div className="chart-value">{item.stock}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="dashboard-side-column">
-          <div className="card chart-card">
-            <div className="chart-title">Top Customers</div>
-            <div className="chart-body">
-              {summary.topCustomers.map((item) => (
-                <div className="chart-row" key={item.name}>
-                  <div className="chart-label">{item.name}</div>
-                  <div className="chart-bar">
-                    <div
-                      className="chart-bar-fill chart-bar-fill-customers"
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                  <div className="chart-value">
-                    ₹{item.amount.toLocaleString("en-IN")}
-                  </div>
-                </div>
-              ))}
-              {summary.topCustomers.length === 0 && (
-                <div className="chart-empty">No customer data yet.</div>
-              )}
-            </div>
-          </div>
-
-          <div className="card notifications-card">
-            <div className="chart-title">Notifications</div>
-            <div className="notifications-body">
-              {summary.lowStockNotifications.length === 0 && (
-                <div className="notification-item">
-                  All products are healthy on stock.
-                </div>
-              )}
-              {summary.lowStockNotifications.map((msg, idx) => (
-                <div className="notification-item" key={idx}>
-                  {msg}
-                </div>
-              ))}
-            </div>
-          </div>
+          <button className="dashboard-export-btn">Download report</button>
         </div>
       </div>
 
-      <div className="alert-bar">
-        Data is currently based on sample products and sample sales. When
-        the backend is connected, this dashboard can read live metrics
-        from the database.
+      {/* KPI row */}
+      <div className="kpi-row">
+        <div className="kpi-card">
+          <div className="kpi-label">Total revenue (today)</div>
+          <div className="kpi-value">
+            ₹{totalRevenue.toLocaleString("en-IN")}
+          </div>
+          <div className="kpi-sub">From all recorded orders</div>
+          <div className="kpi-trend kpi-trend-up">▲ 12.4% vs yesterday</div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="kpi-label">Orders</div>
+          <div className="kpi-value">{ordersToday}</div>
+          <div className="kpi-sub">Completed invoices</div>
+          <div className="kpi-trend kpi-trend-neutral">→ Stable volume</div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="kpi-label">Avg. order value</div>
+          <div className="kpi-value">
+            ₹{avgOrderValue.toLocaleString("en-IN")}
+          </div>
+          <div className="kpi-sub">Across today&apos;s orders</div>
+          <div className="kpi-trend kpi-trend-up">▲ 5.2% vs last week</div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="kpi-label">Low stock items</div>
+          <div className="kpi-value kpi-danger">{lowStockItems}</div>
+          <div className="kpi-sub">Need restock soon</div>
+          <div className="kpi-trend kpi-trend-down">▼ Restocked yesterday</div>
+        </div>
+      </div>
+
+      {/* Middle row: revenue overview + recent activity */}
+      <div className="grid-2">
+        <div className="card">
+          <div className="card-header">
+            <span>Revenue overview</span>
+            <span className="card-meta">Sample chart · frontend only</span>
+          </div>
+
+          <div className="dashboard-mini-chart">
+            <div className="dashboard-mini-chart-bars">
+              <div className="chart-bar" style={{ height: "32%" }} />
+              <div className="chart-bar" style={{ height: "52%" }} />
+              <div className="chart-bar" style={{ height: "44%" }} />
+              <div className="chart-bar chart-bar-accent" style={{ height: "78%" }} />
+              <div className="chart-bar" style={{ height: "61%" }} />
+              <div className="chart-bar" style={{ height: "55%" }} />
+            </div>
+            <div className="dashboard-mini-chart-legend">
+              <span>Today</span>
+              <span>Last 7 days</span>
+            </div>
+          </div>
+
+          <div className="dashboard-summary-row">
+            <div>
+              <div className="summary-label">Today</div>
+              <div className="summary-value">
+                ₹{totalRevenue.toLocaleString("en-IN")}
+              </div>
+            </div>
+            <div>
+              <div className="summary-label">This week (est.)</div>
+              <div className="summary-value">₹5,40,000</div>
+            </div>
+            <div>
+              <div className="summary-label">Refund rate</div>
+              <div className="summary-value">1.4%</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <span>Recent activity</span>
+            <span className="card-meta">Latest 4 invoices</span>
+          </div>
+
+          <ul className="list">
+            {recentSales.map((s) => (
+              <li key={s.id} className="activity-row">
+                <div>
+                  <div className="list-title">
+                    {s.invoice} · {s.customer}
+                  </div>
+                  <div className="list-sub">{s.time}</div>
+                </div>
+                <div className="activity-amount">
+                  ₹{s.total.toLocaleString("en-IN")}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Bottom row: top products table */}
+      <div className="card">
+        <div className="card-header">
+          <span>Top products by revenue</span>
+          <span className="card-meta">Static demo data · no backend</span>
+        </div>
+
+        <table className="simple-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Revenue</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topProducts.map((p) => (
+              <tr key={p.id}>
+                <td>{p.name}</td>
+                <td>{p.category}</td>
+                <td>₹{p.revenue.toLocaleString("en-IN")}</td>
+                <td>{p.share}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-      }
+};
+
+export default DashboardPage;
