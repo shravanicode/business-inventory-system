@@ -1,30 +1,28 @@
-// frontend/src/mock/inventory.ts
-
 export type Product = {
   id: number;
   name: string;
   category: string;
   buyingPrice: number;
   sellingPrice: number;
-  stockQuantity: number;
+  stock: number;
 };
 
 export const mockProducts: Product[] = [
   {
     id: 1,
-    name: "Dell Inspiron Laptop 14\"",
+    name: 'Dell Inspiron Laptop 14"',
     category: "Laptops",
     buyingPrice: 52000,
     sellingPrice: 62000,
-    stockQuantity: 8,
+    stock: 8,
   },
   {
     id: 2,
-    name: "HP Pavilion Laptop 15\"",
+    name: "HP Pavilion Laptop 15",
     category: "Laptops",
     buyingPrice: 48000,
     sellingPrice: 58000,
-    stockQuantity: 4, // low stock
+    stock: 4,
   },
   {
     id: 3,
@@ -32,7 +30,7 @@ export const mockProducts: Product[] = [
     category: "Mobiles",
     buyingPrice: 26000,
     sellingPrice: 30500,
-    stockQuantity: 12,
+    stock: 12,
   },
   {
     id: 4,
@@ -40,7 +38,7 @@ export const mockProducts: Product[] = [
     category: "Mobiles",
     buyingPrice: 19000,
     sellingPrice: 22999,
-    stockQuantity: 3, // low stock
+    stock: 3,
   },
   {
     id: 5,
@@ -48,7 +46,7 @@ export const mockProducts: Product[] = [
     category: "Accessories",
     buyingPrice: 450,
     sellingPrice: 799,
-    stockQuantity: 25,
+    stock: 25,
   },
   {
     id: 6,
@@ -56,7 +54,7 @@ export const mockProducts: Product[] = [
     category: "Accessories",
     buyingPrice: 900,
     sellingPrice: 1499,
-    stockQuantity: 5, // border line
+    stock: 5,
   },
   {
     id: 7,
@@ -64,7 +62,7 @@ export const mockProducts: Product[] = [
     category: "Furniture",
     buyingPrice: 3200,
     sellingPrice: 4499,
-    stockQuantity: 6,
+    stock: 6,
   },
   {
     id: 8,
@@ -72,7 +70,7 @@ export const mockProducts: Product[] = [
     category: "Furniture",
     buyingPrice: 7200,
     sellingPrice: 9999,
-    stockQuantity: 2, // low stock
+    stock: 2,
   },
   {
     id: 9,
@@ -80,7 +78,7 @@ export const mockProducts: Product[] = [
     category: "Printers",
     buyingPrice: 8200,
     sellingPrice: 10499,
-    stockQuantity: 7,
+    stock: 7,
   },
   {
     id: 10,
@@ -88,6 +86,6 @@ export const mockProducts: Product[] = [
     category: "Stationery",
     buyingPrice: 210,
     sellingPrice: 349,
-    stockQuantity: 40,
+    stock: 40,
   },
 ];
