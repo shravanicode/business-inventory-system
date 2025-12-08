@@ -1,22 +1,60 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import pool from "./db.js";
+// backend/index.js
 
-dotenv.config();
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
+
+// ---------------- DATABASE CONNECTION ----------------
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+// Test database connection on startup
+(async () => {
+  try {
+    await pool.query("SELECT 1");
+    console.log("Database connected successfully");
+  } catch (err) {
+    console.error("Database connection error:", err.message);
+  }
+})();
 
 app.use(cors());
 app.use(express.json());
 
-/* ---------- Health ---------- */
+// ---------------- ROOT ROUTE ----------------
+
 app.get("/", (req, res) => {
   res.send("Inventory backend is running");
 });
 
-/* ---------- ONE-TIME SETUP ---------- */
+// ---------------- DATABASE TEST ROUTE ----------------
+
+app.get("/api/db-test", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW() AS now");
+    res.json({
+      status: "ok",
+      database: "connected",
+      time: result.rows[0].now,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      database: "not connected",
+      message: err.message,
+    });
+  }
+});
+
+// ---------------- SETUP ROUTE (RUN ONCE) ----------------
+
 app.post("/api/setup", async (req, res) => {
   const client = await pool.connect();
   try {
@@ -27,146 +65,65 @@ app.post("/api/setup", async (req, res) => {
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         category TEXT NOT NULL,
-        buying_price NUMERIC NOT NULL,
-        selling_price NUMERIC NOT NULL,
-        stock INTEGER NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        buying_price INTEGER NOT NULL,
+        selling_price INTEGER NOT NULL,
+        stock INTEGER NOT NULL
       );
     `);
 
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS sales (
-        id SERIAL PRIMARY KEY,
-        customer_name TEXT NOT NULL,
-        total_amount NUMERIC NOT NULL,
-        status TEXT DEFAULT 'PAID',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+    const countResult = await client.query("SELECT COUNT(*) FROM products;");
+    const count = parseInt(countResult.rows[0].count, 10);
 
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS sale_items (
-        id SERIAL PRIMARY KEY,
-        sale_id INTEGER REFERENCES sales(id) ON DELETE CASCADE,
-        product_id INTEGER REFERENCES products(id),
-        quantity INTEGER NOT NULL,
-        price NUMERIC NOT NULL
-      );
-    `);
-
-    await client.query(`
-      INSERT INTO products (name, category, buying_price, selling_price, stock)
-      VALUES
-        ('Dell Inspiron 14"', 'Laptops', 52000, 62000, 8),
-        ('HP Pavilion 15', 'Laptops', 48000, 58000, 4),
-        ('Samsung Galaxy A55', 'Mobiles', 26000, 30500, 12),
-        ('Redmi Note 13 Pro', 'Mobiles', 19000, 22999, 3),
-        ('Logitech Mouse', 'Accessories', 450, 799, 25)
-      ON CONFLICT DO NOTHING;
-    `);
+    if (count === 0) {
+      await client.query(`
+        INSERT INTO products (name, category, buying_price, selling_price, stock)
+        VALUES
+          ('Dell Inspiron Laptop 14"', 'Laptops', 52000, 62000, 8),
+          ('HP Pavilion Laptop 15"', 'Laptops', 48000, 58000, 4),
+          ('Samsung Galaxy A55', 'Mobiles', 26000, 30500, 12),
+          ('Redmi Note 13 Pro', 'Mobiles', 19000, 22999, 3),
+          ('Logitech Wireless Mouse M185', 'Accessories', 450, 799, 25),
+          ('Dell Wireless Keyboard', 'Accessories', 900, 1499, 5),
+          ('Office Chair Ergonomic', 'Furniture', 3200, 4499, 6),
+          ('Gaming Chair High Back', 'Furniture', 7200, 9999, 2),
+          ('HP LaserJet Printer', 'Printers', 8200, 10499, 7),
+          ('A4 Paper Pack 500 Sheets', 'Stationery', 210, 349, 40);
+      `);
+    }
 
     await client.query("COMMIT");
-    res.json({ ok: true, message: "Setup completed" });
+    res.json({ success: true, message: "Setup completed successfully" });
   } catch (err) {
     await client.query("ROLLBACK");
-    res.status(500).json({ ok: false, error: "Setup failed" });
+    res.status(500).json({
+      success: false,
+      message: "Setup failed",
+      error: err.message,
+    });
   } finally {
     client.release();
   }
 });
 
-/* ---------- PRODUCTS ---------- */
+// ---------------- PRODUCTS API ----------------
+
 app.get("/api/products", async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT
-        id,
-        name,
-        category,
-        buying_price  AS "buyingPrice",
-        selling_price AS "sellingPrice",
-        stock
-      FROM products
-      ORDER BY id ASC
-    `);
+    const result = await pool.query(
+      `SELECT id, name, category, buying_price, selling_price, stock
+       FROM products
+       ORDER BY id`
+    );
     res.json(result.rows);
-  } catch {
-    res.status(500).json({ error: "Failed to fetch products" });
-  }
-});
-
-/* ---------- SALES ---------- */
-app.post("/api/sales", async (req, res) => {
-  const { customerName, items } = req.body;
-  if (!customerName || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "Invalid sale data" });
-  }
-
-  const client = await pool.connect();
-  try {
-    await client.query("BEGIN");
-
-    let totalAmount = 0;
-
-    for (const item of items) {
-      const pr = await client.query(
-        "SELECT selling_price, stock FROM products WHERE id=$1",
-        [item.productId]
-      );
-      if (pr.rowCount === 0) throw new Error("Product not found");
-      if (item.quantity > pr.rows[0].stock)
-        throw new Error("Insufficient stock");
-
-      totalAmount += Number(pr.rows[0].selling_price) * item.quantity;
-
-      await client.query(
-        "UPDATE products SET stock = stock - $1 WHERE id = $2",
-        [item.quantity, item.productId]
-      );
-    }
-
-    const sale = await client.query(
-      "INSERT INTO sales (customer_name, total_amount) VALUES ($1,$2) RETURNING *",
-      [customerName, totalAmount]
-    );
-
-    for (const item of items) {
-      await client.query(
-        "INSERT INTO sale_items (sale_id, product_id, quantity, price) VALUES ($1,$2,$3,(SELECT selling_price FROM products WHERE id=$2))",
-        [sale.rows[0].id, item.productId, item.quantity]
-      );
-    }
-
-    await client.query("COMMIT");
-    res.json({ ok: true, saleId: sale.rows[0].id });
   } catch (err) {
-    await client.query("ROLLBACK");
-    res.status(500).json({ error: err.message });
-  } finally {
-    client.release();
-  }
-});
-
-/* ---------- DASHBOARD SUMMARY ---------- */
-app.get("/api/dashboard/summary", async (req, res) => {
-  try {
-    const revenue = await pool.query(
-      "SELECT COALESCE(SUM(total_amount),0) AS total FROM sales"
-    );
-    const orders = await pool.query("SELECT COUNT(*) AS count FROM sales");
-    const lowStock = await pool.query(
-      "SELECT COUNT(*) AS count FROM products WHERE stock <= 5"
-    );
-
-    res.json({
-      totalRevenue: Number(revenue.rows[0].total),
-      ordersToday: Number(orders.rows[0].count),
-      lowStockItems: Number(lowStock.rows[0].count)
+    res.status(500).json({
+      message: "Failed to fetch products",
+      error: err.message,
     });
-  } catch {
-    res.status(500).json({ error: "Dashboard error" });
   }
 });
+
+// ---------------- START SERVER ----------------
 
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
