@@ -1,236 +1,377 @@
-import { useState, useMemo } from "react";
-import { mockProducts } from "../mock/inventory";
+import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { mockProducts, Product } from "../mock/inventory";
 
 type CartItem = {
   id: number;
-  name: string;
+  product: Product;
   quantity: number;
-  price: number;
-  lineTotal: number;
 };
 
-export default function SalesPage() {
-  const [selectedId, setSelectedId] = useState<number>(mockProducts[0]?.id ?? 1);
-  const [qty, setQty] = useState<number>(1);
-  const [customer, setCustomer] = useState<string>("");
+type PastOrder = {
+  id: number;
+  invoice: string;
+  customer: string;
+  date: string;
+  amount: number;
+  status: "Paid" | "Pending";
+};
+
+const mockPastOrders: PastOrder[] = [
+  {
+    id: 1,
+    invoice: "#INV-1019",
+    customer: "Greenfield Stores",
+    date: "02 Aug · 11:42",
+    amount: 43200,
+    status: "Paid",
+  },
+  {
+    id: 2,
+    invoice: "#INV-1018",
+    customer: "Urban Mart",
+    date: "01 Aug · 17:25",
+    amount: 18990,
+    status: "Paid",
+  },
+  {
+    id: 3,
+    invoice: "#INV-1017",
+    customer: "Aarav Shah",
+    date: "30 Jul · 12:07",
+    amount: 8200,
+    status: "Paid",
+  },
+  {
+    id: 4,
+    invoice: "#INV-1016",
+    customer: "Riya Desai",
+    date: "29 Jul · 09:18",
+    amount: 15499,
+    status: "Pending",
+  },
+];
+
+const formatCurrency = (value: number) =>
+  `₹${value.toLocaleString("en-IN")}`;
+
+const SalesPage: React.FC = () => {
+  const [customerName, setCustomerName] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState<number | "">("");
+  const [quantity, setQuantity] = useState<number>(1);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [orderNote, setOrderNote] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
 
-  const product = mockProducts.find((p) => p.id === selectedId);
-  const currentTotal = product ? product.sellingPrice * qty : 0;
+  const selectedProduct = useMemo(
+    () => mockProducts.find((p) => p.id === selectedProductId),
+    [selectedProductId]
+  );
 
-  const { itemsInCart, unitsInCart, grandTotal } = useMemo(() => {
-    const items = cart.length;
-    const units = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const total = cart.reduce((sum, item) => sum + item.lineTotal, 0);
-    return { itemsInCart: items, unitsInCart: units, grandTotal: total };
-  }, [cart]);
+  const cartSubtotal = useMemo(
+    () =>
+      cart.reduce(
+        (sum, item) => sum + item.product.sellingPrice * item.quantity,
+        0
+      ),
+    [cart]
+  );
+
+  const totalItems = useMemo(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart]
+  );
 
   const handleAddToCart = () => {
-    if (!product || qty <= 0) return;
+    if (!selectedProduct) return;
 
-    setCart((prev) => {
-      const existing = prev.find((i) => i.id === product.id);
-      if (existing) {
-        const updated = prev.map((i) =>
-          i.id === product.id
-            ? {
-                ...i,
-                quantity: i.quantity + qty,
-                lineTotal: (i.quantity + qty) * i.price,
-              }
-            : i
-        );
-        return updated;
-      }
+    if (quantity <= 0) {
+      setFeedback("Quantity must be at least 1");
+      return;
+    }
 
-      return [
-        ...prev,
-        {
-          id: product.id,
-          name: product.name,
-          quantity: qty,
-          price: product.sellingPrice,
-          lineTotal: product.sellingPrice * qty,
-        },
-      ];
-    });
+    const existing = cart.find((item) => item.product.id === selectedProduct.id);
 
-    setQty(1);
+    if (existing) {
+      setCart((prev) =>
+        prev.map((item) =>
+          item.product.id === selectedProduct.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+      );
+    } else {
+      const newItem: CartItem = {
+        id: Date.now(),
+        product: selectedProduct,
+        quantity,
+      };
+      setCart((prev) => [...prev, newItem]);
+    }
+
+    setFeedback(null);
+    setQuantity(1);
   };
 
-  const handleClearCart = () => {
-    setCart([]);
+  const handleRemoveFromCart = (id: number) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleCompleteSale = () => {
-    if (!cart.length) return;
-    // Placeholder – future: send to backend API
-    alert("Sale recorded (frontend demo).");
-    setCart([]);
-    setCustomer("");
-    setQty(1);
+  const handlePlaceOrder = () => {
+    if (!customerName.trim()) {
+      setFeedback("Please enter a customer name");
+      return;
+    }
+    if (cart.length === 0) {
+      setFeedback("Add at least one product to the cart");
+      return;
+    }
+
+    // Frontend-only: we just show a short success message.
+    setFeedback(
+      `Order draft created for ${customerName} · ${totalItems} items · ${formatCurrency(
+        cartSubtotal
+      )}`
+    );
+
+    // In real app you would send this data to the backend here.
   };
 
   return (
-    <div>
-      {/* Header */}
+    <div className="page">
       <div className="page-header">
-        <h1 className="page-title">Sales</h1>
-        <p className="page-subtitle">
-          Build a quick order, review the cart and record the sale.
-        </p>
+        <h1>Sales &amp; new order</h1>
+        <p>Create a new order, add items to cart and review recent invoices.</p>
       </div>
 
-      {/* KPI row similar to dashboard */}
-      <div className="stat-grid" style={{ marginBottom: 16 }}>
-        <div className="card">
-          <div className="card-label">Items in cart</div>
-          <div className="card-value">{itemsInCart}</div>
+      {/* Top info row */}
+      <div className="kpi-row" style={{ marginBottom: 16 }}>
+        <div className="kpi-card">
+          <div className="kpi-label">Active products</div>
+          <div className="kpi-value">{mockProducts.length}</div>
+          <div className="kpi-sub">Available in catalog</div>
         </div>
-        <div className="card">
-          <div className="card-label">Units in cart</div>
-          <div className="card-value">{unitsInCart}</div>
+        <div className="kpi-card">
+          <div className="kpi-label">Today&apos;s sales (sample)</div>
+          <div className="kpi-value">{formatCurrency(185000)}</div>
+          <div className="kpi-sub">Frontend-only sample data</div>
         </div>
-        <div className="card">
-          <div className="card-label">Current order total</div>
-          <div className="card-value">₹{grandTotal}</div>
+        <div className="kpi-card">
+          <div className="kpi-label">Recent invoices</div>
+          <div className="kpi-value">{mockPastOrders.length}</div>
+          <div className="kpi-sub">Last few orders in history</div>
         </div>
       </div>
 
-      {/* Main two-column sales layout */}
-      <div className="sales-layout">
-        {/* Left: order form */}
-        <div className="form-card">
-          <div className="form-title">New order</div>
-
-          <div className="form-field">
-            <label className="form-label">Customer name</label>
-            <input
-              className="form-input"
-              placeholder="Enter customer name"
-              value={customer}
-              onChange={(e) => setCustomer(e.target.value)}
-            />
+      <div className="grid-2">
+        {/* Create new order */}
+        <div className="card">
+          <div className="card-header">
+            <span>Create new order</span>
+            <span className="card-meta">
+              Draft only · no backend integration.
+            </span>
           </div>
 
-          <div className="form-field">
-            <label className="form-label">Product</label>
-            <select
-              className="form-select"
-              value={selectedId}
-              onChange={(e) => setSelectedId(Number(e.target.value))}
-            >
-              {mockProducts.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div className="sales-form">
+            <div className="form-field">
+              <label>Customer name</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="Enter customer name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
+            </div>
 
-          <div className="form-field">
-            <label className="form-label">Quantity</label>
-            <input
-              className="form-input"
-              type="number"
-              min={1}
-              value={qty}
-              onChange={(e) => setQty(Number(e.target.value) || 1)}
-            />
-          </div>
+            <div className="form-field">
+              <label>Select product</label>
+              <select
+                className="input"
+                value={selectedProductId === "" ? "" : selectedProductId}
+                onChange={(e) =>
+                  setSelectedProductId(
+                    e.target.value ? Number(e.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Choose a product</option>
+                {mockProducts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} — {formatCurrency(p.sellingPrice)}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <button className="add-to-cart-button" onClick={handleAddToCart}>
-            <span>＋</span>
-            Add to cart
-          </button>
+            <div className="form-field">
+              <label>Quantity</label>
+              <input
+                type="number"
+                min={1}
+                className="input"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+              />
+            </div>
 
-          <div style={{ marginTop: 18 }}>
-            <span className="form-label">Current line total</span>
-            <div
-              style={{
-                fontSize: 20,
-                fontWeight: 700,
-                marginTop: 4,
-              }}
-            >
-              ₹{currentTotal}
+            <div className="form-field">
+              <label>Notes (optional)</label>
+              <textarea
+                className="input"
+                rows={3}
+                placeholder="Add delivery or billing notes"
+                value={orderNote}
+                onChange={(e) => setOrderNote(e.target.value)}
+              />
+            </div>
+
+            {feedback && <div className="info-banner">{feedback}</div>}
+
+            <div className="sales-actions">
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={handleAddToCart}
+              >
+                + Add to cart
+              </button>
+
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={handlePlaceOrder}
+              >
+                Save order draft
+              </button>
+            </div>
+
+            <div className="sales-note">
+              This page is frontend-only. When the backend is connected, this
+              form can create live orders in the database.
             </div>
           </div>
         </div>
 
-        {/* Right: cart summary */}
-        <div className="form-card">
-          <div className="form-title">Cart items</div>
+        {/* Cart + summary */}
+        <div className="card">
+          <div className="card-header">
+            <span>Cart items</span>
+            <span className="card-meta">
+              {totalItems} items · {formatCurrency(cartSubtotal)}
+            </span>
+          </div>
 
           {cart.length === 0 ? (
-            <p className="cart-empty">No items in cart yet.</p>
+            <div className="empty-state">
+              <p>No items in cart</p>
+              <span>
+                Select a product, choose quantity and click &quot;Add to cart&quot;.
+              </span>
+            </div>
           ) : (
             <>
-              <div style={{ overflowX: "auto" }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Qty</th>
-                      <th>Price</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cart.map((item) => (
+              <table className="simple-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th style={{ width: 80 }}>Qty</th>
+                    <th style={{ width: 120 }}>Price</th>
+                    <th style={{ width: 120 }}>Amount</th>
+                    <th style={{ width: 80 }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cart.map((item) => {
+                    const lineTotal =
+                      item.product.sellingPrice * item.quantity;
+                    return (
                       <tr key={item.id}>
-                        <td>{item.name}</td>
+                        <td>{item.product.name}</td>
                         <td>{item.quantity}</td>
-                        <td>₹{item.price}</td>
-                        <td>₹{item.lineTotal}</td>
+                        <td>{formatCurrency(item.product.sellingPrice)}</td>
+                        <td>{formatCurrency(lineTotal)}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="table-link-danger"
+                            onClick={() => handleRemoveFromCart(item.id)}
+                          >
+                            Remove
+                          </button>
+                        </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    );
+                  })}
+                </tbody>
+              </table>
 
-              <div
-                style={{
-                  marginTop: 14,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
+              <div className="cart-summary-row">
                 <div>
-                  <span className="form-label">Grand total</span>
-                  <div
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 700,
-                      marginTop: 4,
-                    }}
-                  >
-                    ₹{grandTotal}
-                  </div>
+                  <div className="summary-label">Items</div>
+                  <div className="summary-value">{totalItems}</div>
                 </div>
-
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={handleClearCart}
-                  >
-                    Clear cart
-                  </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={handleCompleteSale}
-                  >
-                    Complete sale
-                  </button>
+                <div>
+                  <div className="summary-label">Subtotal</div>
+                  <div className="summary-value">
+                    {formatCurrency(cartSubtotal)}
+                  </div>
                 </div>
               </div>
             </>
           )}
+
+          <div className="recent-footer">
+            <Link to="/products" className="link-button">
+              View product inventory
+            </Link>
+          </div>
         </div>
+      </div>
+
+      {/* Recent orders */}
+      <div className="card" style={{ marginTop: 16 }}>
+        <div className="card-header">
+          <span>Recent sales activity</span>
+          <span className="card-meta">Static sample data · no backend</span>
+        </div>
+
+        <table className="simple-table">
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mockPastOrders.map((order) => (
+              <tr key={order.id}>
+                <td>{order.invoice}</td>
+                <td>{order.customer}</td>
+                <td>{order.date}</td>
+                <td>{formatCurrency(order.amount)}</td>
+                <td>
+                  <span
+                    className={
+                      order.status === "Paid"
+                        ? "status-pill status-pill-success"
+                        : "status-pill status-pill-warning"
+                    }
+                  >
+                    {order.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-    }
+};
+
+export default SalesPage;
