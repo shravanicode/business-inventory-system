@@ -1,13 +1,24 @@
-import pkg from "pg";
-import dotenv from "dotenv";
+// backend/db.js
+const { Pool } = require("pg");
 
-dotenv.config();
-
-const { Pool } = pkg;
+if (!process.env.DATABASE_URL) {
+  console.warn("DATABASE_URL is not set. Database will not connect.");
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-export default pool;
+pool.on("connect", () => {
+  console.log("PostgreSQL connected");
+});
+
+pool.on("error", (err) => {
+  console.error("Unexpected DB error", err);
+  process.exit(1);
+});
+
+module.exports = pool;
