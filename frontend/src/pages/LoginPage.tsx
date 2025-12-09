@@ -133,7 +133,11 @@ const LoginPage: React.FC = () => {
             >
               {isSubmitting ? "Signing in…" : "Sign in"}
             </button>
-
             
+           </form>
+         </section>
+       </div>
+     );
+   };
 
 export default LoginPage;
