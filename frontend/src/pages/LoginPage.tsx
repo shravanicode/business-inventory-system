@@ -1,7 +1,7 @@
 // src/pages/LoginPage.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/login.css";
+import "../login.css";
 
 const DEMO_EMAIL = "manager@company.com";
 const DEMO_PASSWORD = "inventory123";
