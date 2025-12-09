@@ -1,5 +1,4 @@
-// frontend/src/pages/DashboardPage.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { mockProducts, Product } from "../mock/inventory";
 
@@ -47,17 +46,8 @@ const mockSales: Sale[] = [
   },
 ];
 
-const revenueTrendSample = [32, 52, 44, 78, 61, 55];
-
 const DashboardPage: React.FC = () => {
-  const [animateChart, setAnimateChart] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setAnimateChart(true), 150);
-    return () => clearTimeout(t);
-  }, []);
-
-  // Metrics from mock data
+  // --------- derived numbers from mock data ----------
 
   const totalProducts = mockProducts.length;
 
@@ -74,180 +64,147 @@ const DashboardPage: React.FC = () => {
   const averageOrderValue =
     mockSales.length > 0 ? Math.round(todayRevenue / mockSales.length) : 0;
 
-  const totalOrders = mockSales.length;
+  const ordersToday = mockSales.length;
 
-  const topProducts = useMemo(() => {
-    const ranked: { product: Product; revenue: number }[] = mockProducts.map(
-      (p) => ({
-        product: p,
-        revenue: p.sellingPrice * p.stock,
-      })
-    );
-
-    ranked.sort((a, b) => b.revenue - a.revenue);
-    return ranked.slice(0, 5);
-  }, []);
+  const totalStockValue = useMemo(
+    () =>
+      mockProducts.reduce(
+        (sum, product) => sum + product.sellingPrice * product.stock,
+        0
+      ),
+    []
+  );
 
   return (
-    <div className="page">
-      {/* Header */}
+    <main className="page">
+      {/* PAGE HEADER */}
       <header className="page-header">
         <div>
-          <h1 className="page-title">Inventory Dashboard</h1>
+          <h1 className="page-title">Inventory Management Dashboard</h1>
           <p className="page-subtitle">
-            Monitor products, stock health and daily sales in one place.
+            Overview of products, orders, stock health and daily sales in one
+            place.
+          </p>
+          <p className="page-subtitle subtle">
+            Data source: sample demo data. Once the backend is connected, this
+            dashboard can read live metrics from the database.
           </p>
         </div>
+
         <div className="page-header-actions">
-          <Link to="/sales" className="btn btn-primary">
-            + New Invoice
-          </Link>
-          <Link to="/products" className="btn btn-outline">
-            View Products
-          </Link>
+          <button className="btn btn-outline-sm">Download report</button>
         </div>
       </header>
 
-      {/* KPI cards */}
-      <section className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Total Products</div>
-          <div className="stat-value">{totalProducts}</div>
-          <div className="stat-subtitle">Active items in catalogue</div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-label">Low Stock Items</div>
-          <div className="stat-value stat-danger">{lowStockItems}</div>
-          <div className="stat-subtitle">Need restocking soon</div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-label">Today&apos;s Revenue</div>
-          <div className="stat-value">
+      {/* TOP STRIP – KPI CARDS (same style as products page strip) */}
+      <section className="summary-strip">
+        <div className="summary-card">
+          <div className="summary-label">Total revenue (today)</div>
+          <div className="summary-value">
             ₹{todayRevenue.toLocaleString("en-IN")}
           </div>
-          <div className="stat-subtitle">From all recorded invoices</div>
+          <div className="summary-meta">From all recorded orders</div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-label">Average Order Value</div>
-          <div className="stat-value">
+        <div className="summary-card">
+          <div className="summary-label">Orders</div>
+          <div className="summary-value">{ordersToday}</div>
+          <div className="summary-meta">Completed invoices</div>
+        </div>
+
+        <div className="summary-card">
+          <div className="summary-label">Avg. order value</div>
+          <div className="summary-value">
             ₹{averageOrderValue.toLocaleString("en-IN")}
           </div>
-          <div className="stat-subtitle">Across {totalOrders} orders</div>
+          <div className="summary-meta">Across today&apos;s orders</div>
+        </div>
+
+        <div className="summary-card">
+          <div className="summary-label">Low stock items</div>
+          <div className="summary-value">{lowStockItems}</div>
+          <div className="summary-meta">Need restock soon</div>
         </div>
       </section>
 
-      {/* Main content grid */}
-      <div className="dashboard-grid">
-        {/* Revenue trend */}
-        <section className="card chart-card">
-          <div className="card-header">
-            <div>
-              <h2 className="card-title">Revenue trend</h2>
-              <p className="card-subtitle">Sample last 6 days</p>
-            </div>
+      {/* REVENUE OVERVIEW (SIMPLE PLACEHOLDER, LIKE “Sample chart” TEXT) */}
+      <section className="card">
+        <header className="card-header">
+          <div>
+            <h2 className="card-title">Revenue overview</h2>
+            <p className="card-meta">
+              Sample chart – frontend only (ready for live data).
+            </p>
           </div>
-
-          <div className="chart-bars">
-            {revenueTrendSample.map((value, idx) => (
-              <div key={idx} className="chart-bar-wrapper">
-                <div
-                  className={`chart-bar ${
-                    animateChart ? "chart-bar-animate" : ""
-                  }`}
-                  style={{ height: `${value}%` }}
-                />
-              </div>
-            ))}
+          <div className="card-header-actions pill-toggle">
+            <button className="pill pill-active">Today</button>
+            <button className="pill">This week</button>
+            <button className="pill">This month</button>
           </div>
-        </section>
+        </header>
 
-        {/* Recent sales */}
-        <section className="card table-card">
-          <div className="card-header">
-            <div>
-              <h2 className="card-title">Recent invoices</h2>
-              <p className="card-subtitle">Latest recorded sales</p>
-            </div>
-            <Link to="/sales" className="card-link">
+        <div className="revenue-placeholder">
+          <div className="revenue-row">
+            <span className="revenue-label">Today</span>
+            <span className="revenue-value">
+              ₹{todayRevenue.toLocaleString("en-IN")}
+            </span>
+          </div>
+          <div className="revenue-row">
+            <span className="revenue-label">This week (est.)</span>
+            <span className="revenue-value">
+              ₹{(todayRevenue * 5).toLocaleString("en-IN")}
+            </span>
+          </div>
+          <div className="revenue-row">
+            <span className="revenue-label">Refund rate</span>
+            <span className="revenue-value">1.4%</span>
+          </div>
+        </div>
+      </section>
+
+      {/* RECENT INVOICES TABLE – SAME STYLE AS PRODUCT TABLE */}
+      <section className="card">
+        <header className="card-header">
+          <div>
+            <h2 className="card-title">Recent invoices</h2>
+            <p className="card-meta">Latest recorded sales.</p>
+          </div>
+          <div className="card-header-actions">
+            <Link to="/sales" className="link-sm">
               View all
             </Link>
           </div>
-
-          <div className="table-wrapper">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Invoice</th>
-                  <th>Customer</th>
-                  <th>Date</th>
-                  <th className="text-right">Amount</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockSales.map((sale) => (
-                  <tr key={sale.id}>
-                    <td>{sale.invoice}</td>
-                    <td>{sale.customer}</td>
-                    <td>{sale.date}</td>
-                    <td className="text-right">
-                      ₹{sale.amount.toLocaleString("en-IN")}
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          sale.status === "Paid"
-                            ? "badge badge-success"
-                            : "badge badge-warning"
-                        }
-                      >
-                        {sale.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-
-      {/* Top products */}
-      <section className="card table-card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">Top products by stock value</h2>
-            <p className="card-subtitle">
-              Based on selling price × current stock
-            </p>
-          </div>
-        </div>
+        </header>
 
         <div className="table-wrapper">
           <table className="table">
             <thead>
               <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th className="text-right">Selling price</th>
-                <th className="text-right">Stock</th>
-                <th className="text-right">Stock value</th>
+                <th>Invoice</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {topProducts.map(({ product, revenue }) => (
-                <tr key={product.id}>
-                  <td>{product.name}</td>
-                  <td>{product.category}</td>
-                  <td className="text-right">
-                    ₹{product.sellingPrice.toLocaleString("en-IN")}
-                  </td>
-                  <td className="text-right">{product.stock}</td>
-                  <td className="text-right">
-                    ₹{revenue.toLocaleString("en-IN")}
+              {mockSales.map((sale) => (
+                <tr key={sale.id}>
+                  <td>{sale.invoice}</td>
+                  <td>{sale.customer}</td>
+                  <td>{sale.date}</td>
+                  <td>₹{sale.amount.toLocaleString("en-IN")}</td>
+                  <td>
+                    <span
+                      className={
+                        sale.status === "Paid"
+                          ? "status-pill status-success"
+                          : "status-pill status-warning"
+                      }
+                    >
+                      {sale.status}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -255,7 +212,57 @@ const DashboardPage: React.FC = () => {
           </table>
         </div>
       </section>
-    </div>
+
+      {/* TOP PRODUCTS BY STOCK VALUE – LOOKS LIKE YOUR PRODUCT TABLE */}
+      <section className="card">
+        <header className="card-header">
+          <div>
+            <h2 className="card-title">Top products by stock value</h2>
+            <p className="card-meta">
+              Based on selling price × current stock.
+            </p>
+          </div>
+          <div className="card-header-actions">
+            <Link to="/products" className="link-sm">
+              View products
+            </Link>
+          </div>
+        </header>
+
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Selling price</th>
+                <th>Stock</th>
+                <th>Stock value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mockProducts.map((product: Product) => (
+                <tr key={product.id}>
+                  <td>{product.name}</td>
+                  <td>{product.category}</td>
+                  <td>₹{product.sellingPrice.toLocaleString("en-IN")}</td>
+                  <td>{product.stock}</td>
+                  <td>
+                    ₹{(product.sellingPrice * product.stock).toLocaleString(
+                      "en-IN"
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <footer className="card-footer">
+        
+        </footer>
+      </section>
+    </main>
   );
 };
 
