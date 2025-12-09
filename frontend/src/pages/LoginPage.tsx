@@ -63,8 +63,8 @@ const LoginPage: React.FC = () => {
               <p className="login-metric-sub">Across all locations</p>
             </div>
             <div className="login-metric-card">
-              <p className="login-metric-label">Items intracked</p>
-              <p className="login-metric-value">2.4k+</p>
+              <p className="login-metric-label">Items tracked</p>
+              <p className="login-metric-value">2.4M+</p>
               <p className="login-metric-sub">Last 30 days</p>
             </div>
             <div className="login-metric-card">
@@ -99,7 +99,7 @@ const LoginPage: React.FC = () => {
                 id="email"
                 type="email"
                 className="login-input"
-                placeholder="enter your email"
+                placeholder="manager@company.com"
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -116,7 +116,7 @@ const LoginPage: React.FC = () => {
                 id="password"
                 type="password"
                 className="login-input"
-                placeholder="enter your password"
+                placeholder="Use your SSO or demo password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -134,6 +134,27 @@ const LoginPage: React.FC = () => {
               {isSubmitting ? "Signing in…" : "Sign in"}
             </button>
 
-            <
-              
+            <p className="login-demo-helper">
+              Demo credentials: <b>{DEMO_EMAIL}</b> / <b>{DEMO_PASSWORD}</b>
+            </p>
+
+            <div className="login-footer-actions">
+              <button
+                type="button"
+                className="login-ghost-button"
+                onClick={() => navigate("/dashboard")}
+              >
+                Admin console
+              </button>
+              <button type="button" className="login-ghost-link">
+                Request account
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  );
+};
+
 export default LoginPage;
