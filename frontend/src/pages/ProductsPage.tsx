@@ -2,7 +2,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { mockProducts, Product } from "../mock/inventory";
 import { fetchProductsFromBackend } from "../api/products";
-import "../styles/products.css"; //
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[] | null>(null);
