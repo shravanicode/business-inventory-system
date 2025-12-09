@@ -1035,3 +1035,337 @@ a:hover {
     grid-template-columns: minmax(0, 1fr);
   }
    }
+/* =======================
+   Products page
+   ======================= */
+
+.bi-products-shell {
+  margin-top: 8px;
+}
+
+.bi-products-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.bi-products-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.bi-products-subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.bi-products-header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.bi-products-button-primary {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  color: #f9fafb;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.bi-products-button-ghost,
+.bi-products-button-ghost-small {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.bi-products-button-ghost-small {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.bi-products-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bi-products-kpi-card {
+  background: radial-gradient(circle at top left, #020617 0, #020617 70%, #000 100%);
+  border-radius: 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+}
+
+.bi-products-kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9ca3af;
+}
+
+.bi-products-kpi-value {
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.bi-products-kpi-hint {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.bi-products-table-card {
+  margin-top: 10px;
+  background: radial-gradient(circle at top left, #020617 0, #020617 70%, #000 100%);
+  border-radius: 16px;
+  padding: 14px 16px 16px;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+}
+
+.bi-products-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.bi-products-tag {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.bi-products-search-wrapper {
+  max-width: 280px;
+  width: 100%;
+}
+
+.bi-products-search-input {
+  width: 100%;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(75, 85, 99, 0.9);
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 12px;
+}
+
+.bi-products-search-input::placeholder {
+  color: #6b7280;
+}
+
+.bi-products-low {
+  color: #f97373;
+  font-weight: 600;
+}
+
+.bi-products-footer-note {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.bi-products-empty {
+  padding: 12px 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.bi-products-table-wrapper {
+  max-height: 320px;
+}
+
+/* =======================
+   Sales page
+   ======================= */
+
+.bi-sales-shell {
+  margin-top: 8px;
+}
+
+.bi-sales-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.bi-sales-header-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.bi-sales-toggle-group {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(55, 65, 81, 0.9);
+}
+
+.bi-sales-toggle {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.bi-sales-toggle-active {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  color: #f9fafb;
+}
+
+.bi-sales-source-note {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.bi-sales-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bi-sales-kpi-card {
+  background: radial-gradient(circle at top left, #020617 0, #020617 70%, #000 100%);
+  border-radius: 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+}
+
+.bi-sales-kpi-value {
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.bi-sales-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.bi-sales-revenue-card {
+  min-height: 220px;
+}
+
+.bi-sales-revenue-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 16px 0 12px;
+  height: 140px;
+}
+
+.bi-sales-revenue-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bi-sales-revenue-bar {
+  width: 24px;
+  border-radius: 10px;
+  background: linear-gradient(to top, #1d4ed8, #60a5fa);
+}
+
+.bi-sales-revenue-label {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.bi-sales-revenue-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bi-sales-summary-value {
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.bi-sales-invoices-card {
+  min-height: 220px;
+}
+
+.bi-sales-invoices-subtitle {
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+.bi-sales-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+}
+
+.bi-sales-status-paid {
+  background: rgba(22, 163, 74, 0.2);
+  color: #bbf7d0;
+}
+
+.bi-sales-status-pending {
+  background: rgba(234, 179, 8, 0.25);
+  color: #facc15;
+}
+
+.bi-sales-status-processing {
+  background: rgba(59, 130, 246, 0.25);
+  color: #bfdbfe;
+}
+
+.bi-sales-status-cancelled {
+  background: rgba(248, 113, 113, 0.25);
+  color: #fecaca;
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 960px) {
+  .bi-products-header,
+  .bi-sales-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bi-sales-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bi-sales-kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bi-products-kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+   }
