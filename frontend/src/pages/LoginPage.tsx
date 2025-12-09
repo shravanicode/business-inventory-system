@@ -99,7 +99,7 @@ const LoginPage: React.FC = () => {
                 id="email"
                 type="email"
                 className="login-input"
-                placeholder="manager@company.com"
+                placeholder="enter your email"
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -116,7 +116,7 @@ const LoginPage: React.FC = () => {
                 id="password"
                 type="password"
                 className="login-input"
-                placeholder="Use your SSO or demo password"
+                placeholder="enter your password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
