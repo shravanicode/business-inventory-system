@@ -1,143 +1,156 @@
 // src/pages/LoginPage.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./login.css";
+import "../styles/login.css";
+
+const DEMO_EMAIL = "manager@company.com";
+const DEMO_PASSWORD = "inventory123";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Demo credentials
-  const DEMO_EMAIL = "manager@company.com";
-  const DEMO_PASSWORD = "inventory123";
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     setIsSubmitting(true);
 
-    // simple demo check – replace with real auth later
-    setTimeout(() => {
-      if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+    // Simple frontend-only check (no credentials shown in UI)
+    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      setTimeout(() => {
         navigate("/dashboard");
-      } else {
-        setError("Invalid email or password. Try the demo credentials.");
-      }
+      }, 500);
+    } else {
+      setError("Invalid email or password");
       setIsSubmitting(false);
-    }, 600);
+    }
   };
 
   return (
     <div className="login-root">
-      <div className="login-frame">
-        {/* Left side – hero content */}
-        <section className="login-hero">
-          <div className="login-brand">
-            <div className="login-logo">
-              <span>BI</span>
-            </div>
+      <div className="login-shell">
+        {/* LEFT PANEL */}
+        <section className="login-panel login-panel-left">
+          <header className="login-brand">
+            <div className="login-logo-circle">BI</div>
             <div className="login-brand-text">
-              <p className="login-brand-title">Business Inventory OS</p>
-              <p className="login-brand-sub">Warehouse & retail analytics</p>
+              <span className="login-brand-title">Business Inventory OS</span>
+              <span className="login-brand-subtitle">
+                Control stock, orders & revenue in real time.
+              </span>
             </div>
-          </div>
+          </header>
 
-          <div className="login-hero-main">
-            <h1 className="login-hero-title">
+          <div className="login-main-copy">
+            <h1 className="login-hero-heading">
               Log in to control your inventory in real time.
             </h1>
-            <p className="login-hero-body">
-              Track stock levels, purchase orders, and sales performance from a
+            <p className="login-hero-subtext">
+              Track stock levels, purchase orders, sales and locations from a
               single clean dashboard designed for busy teams.
             </p>
           </div>
 
-          <div className="login-metrics-row">
-            <div className="login-metric-card">
-              <p className="login-metric-label">Sync uptime</p>
-              <p className="login-metric-value">99.9%</p>
-              <p className="login-metric-sub">Across all locations</p>
+          <div className="login-stats-row">
+            <div className="login-stat-card">
+              <div className="login-stat-label">Uptime</div>
+              <div className="login-stat-value">99.9%</div>
+              <div className="login-stat-foot">Across all branches</div>
             </div>
-            <div className="login-metric-card">
-              <p className="login-metric-label">Items tracked</p>
-              <p className="login-metric-value">2.4k+</p>
-              <p className="login-metric-sub">Last 30 days</p>
+            <div className="login-stat-card">
+              <div className="login-stat-label">Items tracked</div>
+              <div className="login-stat-value">2.4M+</div>
+              <div className="login-stat-foot">Last 50 days</div>
             </div>
-            <div className="login-metric-card">
-              <p className="login-metric-label">Live snapshots</p>
-              <p className="login-metric-value">24/7</p>
-              <p className="login-metric-sub">Warehouse visibility</p>
+            <div className="login-stat-card">
+              <div className="login-stat-label">Snapshots</div>
+              <div className="login-stat-value">Live</div>
+              <div className="login-stat-foot">Warehouse view</div>
             </div>
           </div>
 
-          <p className="login-security-note">
-            • Secure SSO and role-based access for every team member.
-          </p>
+          <div className="login-bullets">
+            <div className="login-bullet">
+              <span className="login-bullet-dot" />
+              <span>Secure SSO-ready architecture</span>
+            </div>
+            <div className="login-bullet">
+              <span className="login-bullet-dot" />
+              <span>Role-based access for all staff accounts</span>
+            </div>
+          </div>
         </section>
 
-        {/* Right side – sign in panel */}
-        <section className="login-panel">
-          <p className="login-panel-tag">WELCOME BACK</p>
-          <h2 className="login-panel-title">Sign in to</h2>
-          <h2 className="login-panel-title highlight">Business Inventory</h2>
-          <p className="login-panel-sub">
-            Use your work email to access the admin console and branch
-            dashboards.
-          </p>
+        {/* RIGHT PANEL */}
+        <section className="login-panel login-panel-right">
+          <div className="login-card">
+            <p className="login-pill">WELCOME BACK</p>
+            <h2 className="login-card-heading">Sign in to Business Inventory</h2>
+            <p className="login-card-subtext">
+              Use your work email to access the admin console and branch
+              dashboards.
+            </p>
 
-          <form className="login-form" onSubmit={handleSubmit}>
-            <label className="login-field-label" htmlFor="email">
-              Work email
-            </label>
-            <div className="login-input-wrapper">
-              <span className="login-input-icon">📧</span>
-              <input
-                id="email"
-                type="email"
-                className="login-input"
-                placeholder="manager@company.com"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+            <form className="login-form" onSubmit={handleSubmit}>
+              <label className="login-field-label" htmlFor="email">
+                Work email
+              </label>
+              <div className="login-input-wrapper">
+                <span className="login-input-icon">📧</span>
+                <input
+                  id="email"
+                  type="email"
+                  className="login-input"
+                  placeholder="you@company.com"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-            <label className="login-field-label" htmlFor="password">
-              Password
-            </label>
-            <div className="login-input-wrapper">
-              <span className="login-input-icon">🔒</span>
-              <input
-                id="password"
-                type="password"
-                className="login-input"
-                placeholder="Use your SSO or demo password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+              <label className="login-field-label" htmlFor="password">
+                Password
+              </label>
+              <div className="login-input-wrapper">
+                <span className="login-input-icon">🔒</span>
+                <input
+                  id="password"
+                  type="password"
+                  className="login-input"
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-            {error && <p className="login-error">{error}</p>}
+              {error && <p className="login-error">{error}</p>}
 
-            <button
-              type="submit"
-              className="login-submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Signing in…" : "Sign in"}
-            </button>
-            
-           </form>
-         </section>
-       </div>
-     );
-   };
+              <div className="login-form-footer">
+                <span className="login-need-account">
+                  Need an account? Contact your administrator.
+                </span>
+              </div>
+
+              <button
+                type="submit"
+                className="login-submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Signing in…" : "Sign in"}
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+};
 
 export default LoginPage;
