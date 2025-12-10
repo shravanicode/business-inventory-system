@@ -1,27 +1,55 @@
 // src/api/products.ts
-import api from "./client";
-import { Product } from "../mock/inventory";
 
-type ProductRow = {
-  id: number;
-  name: string;
-  category: string;
-  buying_price: number;
-  selling_price: number;
-  stock: number;
+import api from "./client";
+import { Product, mockProducts } from "../mock/Products";
+
+/**
+ * Fetch products from backend.
+ * Falls back to mock data if API fails.
+ */
+export const fetchProducts = async (): Promise<Product[]> => {
+  try {
+    const res = await api.get<Product[]>("/products");
+
+    if (Array.isArray(res.data)) {
+      return res.data;
+    }
+
+    // unexpected response shape
+    console.warn("Products API returned invalid data, using mock data");
+    return mockProducts;
+  } catch (error) {
+    console.error("Failed to fetch products from API, using mock data", error);
+    return mockProducts;
+  }
 };
 
-export async function fetchProductsFromBackend(): Promise<Product[]> {
-  const response = await api.get<ProductRow[]>("/api/products");
-  const rows = response.data;
+/**
+ * (Future) Add new product
+ */
+export const createProduct = async (
+  payload: Omit<Product, "id">
+): Promise<Product> => {
+  const res = await api.post<Product>("/products", payload);
+  return res.data;
+};
 
-  // Map DB rows -> frontend Product type (camelCase)
-  return rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    category: row.category,
-    buyingPrice: Number(row.buying_price),
-    sellingPrice: Number(row.selling_price),
-    stock: row.stock,
-  }));
-}
+/**
+ * (Future) Update product
+ */
+export const updateProduct = async (
+  id: number | string,
+  payload: Partial<Omit<Product, "id">>
+): Promise<Product> => {
+  const res = await api.put<Product>(`/products/${id}`, payload);
+  return res.data;
+};
+
+/**
+ * (Future) Delete product
+ */
+export const deleteProduct = async (
+  id: number | string
+): Promise<void> => {
+  await api.delete(`/products/${id}`);
+};
