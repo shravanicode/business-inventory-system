@@ -62,7 +62,7 @@ const LoginPage: React.FC = () => {
             </div>
             <div className="login-stat-card">
               <div className="login-stat-label">Items tracked</div>
-              <div className="login-stat-value">2.4M+</div>
+              <div className="login-stat-value">2.4k+</div>
               <div className="login-stat-foot">Last 50 days</div>
             </div>
             <div className="login-stat-card">
